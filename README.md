@@ -1,143 +1,36 @@
-DayZ Linux CLI Launcher
+Easier DayZ Linux Launcher
 ====
 
-## About
+This program has been forked from : https://github.com/bastimeyer/dayz-linux-cli-launcher
 
-This is an experimental launcher script for DayZ standalone on Linux when running the game via Proton.
+Many thanks to bastimeyer.
 
-Proton is currently unable to start the game's own regular launcher application which sets up mods and launch parameters for the game client. The game however does work fine when launching the client directly, so mods can be set up and configured manually, which is what this script does, similar to what the launcher would do.
+## About the script :
 
-Automatic Steam workshop mod downloads are currently unsupported due to a limitation of Steam's CLI. Workshop mods will therefore need to be subscribed manually via the web browser. A URL for each missing mod will be printed to the output.
+This is my first ever GitHub Repo. As well as my first time using Bash. So don't blame me !
+Even though this is my first bash program, It should work fairly well on any Linux machine capable of running dayZ.
+(Has been tested on multiple Linux machines) If you found any bug, please report it. But make sure that the bug really comes from **my** program, so please check if you can join a vanilla server using the official launcher before complaining.
 
-Please see the "Install DayZ" section down below on how to get the game running on Linux.
+Also don't forget that this is just an "automation script" to make your life easier if you are a beginer **using bastimeyer's program**. If you encounter a problem connecting to your favorite modded dayZ server, please check the original software's github page linked above for further info.
 
-## Usage
+Again, this script is meant to be a more lightweight alternative to VlaanH's GUI fork, Thus making it easier to modify it to your needs.
 
-```
-Usage: dayz-launcher.sh [OPTION]... [MODID]... [-- [GAME-PARAM]...]
 
-Automatically set up mods for DayZ, launch the game and connect to a server,
-or print the game's -mod command line argument for custom configuration.
+## Using the program :
+To use this software, all you need to do is to download the latest release, and extract it where ever you want on your computer. Just make sure that at least *bashdayz.sh* and *dayz-launcher.sh* are in the same directory.
 
-Command line options:
+First, open your terminal in the program's directory.
 
-  -h
-  --help
-    Print this help text.
-
-  -d
-  --debug
-    Print debug messages to output.
-
-  --steam <"" | flatpak | /path/to/steam/executable>
-    If set to flatpak, use the flatpak version of Steam (com.valvesoftware.Steam).
-    Steam needs to already be running in the flatpak container.
-    Default is: "" (automatic detection - prefers flatpak if available)
-
-  -l
-  --launch
-    Launch DayZ after resolving and setting up mods instead of
-    printing the game's -mod command line argument.
-    Any custom game parameters that come after the first double-dash (--) will
-    be appended to the overall launch command line. This implies --launch.
-
-  -n <name>
-  --name <name>
-    Set the profile name when launching the game via --launch.
-    Some community servers require a profile name when trying to connect.
-
-  -s <address[:port]>
-  --server <address[:port]>
-    Retrieve a server's mod list and add it to the remaining input.
-    Uses the dayzsalauncher.com JSON API.
-    If --launch is set, it will automatically connect to the server.
-    The optional port is the server's game port. Default is: 2302
-
-  -p <port>
-  --port <port>
-    The server's query port, not to be confused with the server's game port.
-    Default is: 27016
-
-Environment variables:
-
-  STEAM_ROOT
-    Set a custom path to Steam's root directory. Default is:
-    ${XDG_DATA_HOME:-${HOME}/.local/share}/Steam
-    which defaults to ~/.local/share/Steam
-
-    If the flatpak package is being used, then the default is:
-    ~/.var/app/com.valvesoftware.Steam/data/Steam
-
-    If the game is stored in a different Steam library directory, then this
-    environment variable needs to be set/changed.
-
-    For example, if the game has been installed in the game library located in
-      /media/games/SteamLibrary/steamapps/common/DayZ
-    then the STEAM_ROOT env var needs to be set like this:
-      STEAM_ROOT=/media/games/SteamLibrary
-```
-
-## Examples
-
+How to run the launcher on any distribution :
 ```sh
-# configure mods by ID
-./dayz-launcher.sh -d 123 456 789
-
-# retrieve mods list from server, configure mods and launch the game
-./dayz-launcher.sh -d -l -s address:gameport -p queryport -n nickname
-
-# configure mods by ID and connect
-./dayz-launcher.sh -d 123 456 789 -- -connect=address -name=nickname
-
-# run game from a different Steam games library path
-STEAM_ROOT=/media/games/SteamLibrary ./dayz-launcher.sh -l -s address
+./bashdayz.sh
 ```
+You will then be prompted to press enter in order to acess the main menu. From there, you can use one of the 3 aviable features :
+- Show server list (will crash the script if you didnt register any)
+- Add new server to the list
+- Direct connect
 
-## Known issues
-
-### Third party server query API
-
-Server data is queried via the third-party dayzsalauncher.com JSON API when using the `--server` parameter. Previously, this was done via the daemonforge.dev JSON API, which unfortunately wasn't perfectly reliable. Please try running the launcher again if the query times out, and if the data returned by the server query API doesn't reflect the server's actual mod IDs, then custom mod IDs will need to be set as launch arguments.
-
-### Steam doesn't launch the game
-
-Sometimes the game doesn't launch despite the launcher correctly passing the right parameters to Steam. This is usually caused by a broken singleton process detection of Steam, where it passes the game's launch parameters to the original Steam process and then terminates. Restarting Steam and re-running the launcher fixes the issue.
-
-One of the main reasons why this can happen is an [unresolved bug in the Steam client](https://github.com/ValveSoftware/steam-for-linux/issues/5753) which causes Steam to become unresponsive when launching it via `-applaunch` and passing arguments that reach a certain threshold in length. This problem occurs when trying to join servers which require loading lots of mods and which therefore increase the length of the launch parameters. In order to overcome this limitation, mod directories have been shrinked as much as possible in the `0.5.0` release, so that the launch parameters can be kept as short as possible. This comes at the cost of not being able to tell mod directories apart in the DayZ game directory, at least as a human, but this should solve the issue for the vast majority of servers. Please report any further issues on the issue tracker. Thank you.
-
-### Case sensitivity of mod-internal file paths
-
-Due to mods being developed on Windows and Windows not differentiating between file paths with different cases, mod developers sometimes don't care about case sensitivity of file names and directories. This can lead to loading issues on Linux when a file system without case insensitivity support is being used.
-
-In case of ext4, which is the default file system on most distros, case insensitivity has only been implemented in kernel 5.2, which was released in July 2019 (later improved for encrypted file systems in kernel 5.13, released in June 2021). The requirements for enabling case insensitivity are an ext4 filesystem created with at least kernel version 5.2 while the `casefold` option was set, as well as the `+F` flag being set on one of the parent directories.
-
-Please refer to your distro's documentation or search engine of choice for how to properly enable case folding/insensitivity on your file system and whether it's supported.
-
-## Future ideas
-
-- Rewrite in Python
-- Don't use a third party server query API and query the server directly
-- Install mods automatically  
-  Unfortunately, Steam doesn't support downloading workshop mods via the CLI and only the `steamcmd` CLI utility seems to be able to do this from a command line shell context, but this requires a Steam login via CLI parameters, which is a bit unpractical.
-- If possible, resolve mod dependencies
-
-## Install
-
-To install the launcher script, simply clone the git repository:
-
-```sh
-git clone https://github.com/bastimeyer/dayz-linux-cli-launcher.git
-cd dayz-linux-cli-launcher
-./dayz-launcher.sh ...
-```
-
-or download the raw script file from GitHub and make it executable (check the script file contents first before running it):
-
-```sh
-curl -SL -o dayz-launcher.sh 'https://github.com/bastimeyer/dayz-linux-cli-launcher/raw/master/dayz-launcher.sh'
-chmod +x dayz-launcher.sh
-./dayz-launcher.sh ...
-```
+Finally, please keep in mind that this project was not intended to be published originally, and was for my personal use.
 
 ## Install DayZ
 
