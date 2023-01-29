@@ -43,7 +43,7 @@ In order to get the game running on Linux, you first have to install the Steam b
 In order for the game to actually run on Linux via Proton, the [`vm.max_map_count`][vm.max_map_count] kernel parameter needs to be increased, because otherwise the game will freeze while loading the main menu or after playing for a couple of minutes. Some custom kernels like TK-Glitch for example already increase this value from its [default value of `64*1024-6`][vm.max_map_count-default] to [`512*1024`][tkg-kernel-patch], but even this won't work reliably. Increasing it to `1024*1024` seems to work.
 
 ```sh
-​sudo sysctl -w vm.max_map_count=1048576
+sudo sysctl -w vm.max_map_count=1048576
 ```
 
 Or apply it permanently:
